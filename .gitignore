@@ -1,5 +1,4 @@
 __pycache__/
-*.pyc
 *.pyo
 *.pyd
 *.egg-info/
@@ -11,7 +10,9 @@ __pycache__/
 *.jpg
 *.png
 *.jpeg
+*.jpg
 *.pt
+*.txt
 temp/
 *.pyc
 .env
