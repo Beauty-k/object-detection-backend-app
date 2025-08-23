@@ -1,0 +1,11 @@
+*.mp4
+*.mov
+*.avi
+*.pt
+__pycache__/
+temp/
+*.pyc
+.env
+static/output.mp4
+temp/
+object_detection_app/custom_dataset/**
