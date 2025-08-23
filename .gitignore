@@ -16,6 +16,8 @@ __pycache__/
 temp/
 *.pyc
 .env
+*.csv
+# **/runs/**/args.yaml
 settings.json
 static/output.mp4
 data/

@@ -18,7 +18,7 @@ detector = ObjectDetector("runs/detect/train14/weights/best.pt")
 
 video_processor = VideoProcessor(video_source)
 output_path = "static/output.mp4"
-VideoProcessor.ensure_output_directory(output_path)
+video_processor._ensure_output_directory(output_path)
 # available_objects = ["pen", "Book", "scale", "plate"]
 # print("Objects available: ", available_objects)
 label1 = "blessing_card"

@@ -1,7 +1,7 @@
 import math
 import cv2
 from typing import Tuple
-from object_detection_app.calculators.i_calculator import ICalculator
+from calculators.i_calculator import ICalculator
 
 class DistanceCalculator(ICalculator):
     def __init__(self, reference_label:str, reference_mm: float = 300):
@@ -24,8 +24,8 @@ class DistanceCalculator(ICalculator):
         return x_center, y_center
     
     def calculate(self, box1, box2):
-        x1, y1 = self.get_center(box1)
-        x2, y2 = self.get_center(box2)
+        x1, y1 = self._get_center(box1)
+        x2, y2 = self._get_center(box2)
         x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
         pixel_distance = math.hypot(x2 - x1, y2 - y1)
         if self.pixel_per_mm:

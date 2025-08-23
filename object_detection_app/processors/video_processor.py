@@ -1,7 +1,7 @@
 import cv2
 import os
 from deep_sort_realtime.deepsort_tracker import DeepSort
-from object_detection_app.calculators.distance_calculator import DistanceCalculator
+from calculators.distance_calculator import DistanceCalculator
 
 
 class VideoProcessor:
@@ -63,7 +63,7 @@ class VideoProcessor:
 
     def _calculate_and_annotate_distance(self, frame, detections, target_labels):
         if self.distance_calculator.pixel_per_mm is None:
-            self.distance_calculator.update_pixel_mm_ratio(detections)
+            self.distance_calculator._update_pixel_mm_ratio(detections)
 
         target_boxes = [d for d in detections if d["label"] in target_labels]
         if len(target_boxes) == 2:
