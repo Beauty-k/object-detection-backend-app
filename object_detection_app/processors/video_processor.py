@@ -102,29 +102,66 @@ class VideoProcessor:
         return True
 
     def process_video(self, detector, target_labels=()):
+
+        """
+        Process video frames to detect, track, and measure distances between objects.
+        Parameters:-
+        detector : ObjectDetector
+            The object detector instance used for performing detections on frames.
+        target_labels : list[str]
+            The labels of objects between which distances should be measured.
+
+        Returns:-
+        tuple[list[float | None], list[dict]]
+            measured_distances_mm : list of float | None
+                List of measured distances (in millimeters) for each processed frame,
+                or None if measurement could not be made for a frame.
+            all_detections : list of dict
+                Detection metadata for each frame, including bounding boxes, labels,
+                and confidence scores.
+        
+        Side Effects:-
+        - Opens a display window if a FrameDisplayer is provided.
+        - Writes annotated frames to a video file if a FrameWriter is configured.
+        - Logs progress and errors during video processing.
+        - Releases video capture, writer, and display resources when finished.
+        """
+
         logger.info("Starting video processing...")
         all_detections = []
-        measured_distance_mm = None
+        measured_distances_mm = []
         frame_count = 0
 
-        while True:
-            frame = self._get_next_frame()
-            if frame is None:
-                break
+        try:
+            while self.cap.isOpened():
+                frame = self._get_next_frame()
+                if frame is None:
+                    break
 
-            annotated_frame, detections = self._detect_objects(detector, frame)
-            _ = self._track_objects(annotated_frame, detections)
-            measured_distance_mm = self._annotate_distances(annotated_frame, detections, target_labels)
-            if not self._output_frame(annotated_frame):
-                break 
+                try:
+                    annotated_frame, detections = self._detect_objects(detector, frame)
+                    _ = self._track_objects(annotated_frame, detections)
+                    distance_mm = self._annotate_distances(annotated_frame, detections, target_labels)
+                    measured_distances_mm.append(distance_mm)
 
-            all_detections.append({"frame": frame_count, "detections": detections})
-            frame_count += 1
+                    if not self._output_frame(annotated_frame):
+                        break 
 
-        self.cap.release()
-        if self.frame_writer:
-            self.frame_writer.release()
-        if self.frame_displayer:
-            self.frame_displayer.close()
-        logger.info("Video processing complete.")
-        return measured_distance_mm, all_detections
+                    all_detections.append({"frame": frame_count, "detections": detections})
+                    frame_count += 1
+                except Exception as e:
+                    logger.error(f"Error processing frame {frame_count}: {e}")
+                    continue
+
+        except Exception as e:
+            logger.error(f"Unexpected error during video processing: {e}")
+
+        finally:
+            self.cap.release()
+            if self.frame_writer:
+                self.frame_writer.release()
+            if self.frame_displayer:
+                self.frame_displayer.close()
+            logger.info("Video processing complete.")
+
+        return measured_distances_mm, all_detections

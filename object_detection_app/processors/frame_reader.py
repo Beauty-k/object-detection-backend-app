@@ -5,5 +5,5 @@ class FrameReader:
         self.cap = cap
 
     def read(self):
-        success, frame = self.cap.read()
-        return frame if success else None
+        success, current_frame = self.cap.read()
+        return current_frame if success else None
