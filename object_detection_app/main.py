@@ -16,12 +16,12 @@ video_source = LocalFileSource("temp/sample_video_002.mp4")
 detector = ObjectDetector("runs/detect/train14/weights/best.pt")
 # detector = ObjectDetector("models/yolov8s.pt")
 
-video_processor = VideoProcessor(video_source)
+video_processor = VideoProcessor(video_source, display=True)
 output_path = "static/output.mp4"
-video_processor._ensure_output_directory(output_path)
 # available_objects = ["pen", "Book", "scale", "plate"]
 # print("Objects available: ", available_objects)
 label1 = "blessing_card"
 label2 = "wallet"
 target_labels = (label1, label2)
-detections = video_processor.process_video(detector, output_path, True, target_labels)
+detections = video_processor.process_video(detector, target_labels)
+

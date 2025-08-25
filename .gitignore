@@ -18,7 +18,6 @@ temp/
 .env
 *.csv
 # **/runs/**/args.yaml
-settings.json
 static/output.mp4
 data/
 dataset/
