@@ -9,3 +9,4 @@ class LocalFileSource(VideoSourceInterface):
         if not os.path.isfile(self.file_path):
             raise FileNotFoundError(f"File {self.file_path} not found")
         return self.file_path
+    

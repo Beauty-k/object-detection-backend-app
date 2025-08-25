@@ -8,7 +8,4 @@ class VideoSourceInterface(ABC):
     @abstractmethod
     def get_video_source(self):
         pass
-
-
-
     

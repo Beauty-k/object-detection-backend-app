@@ -20,3 +20,4 @@ class DeepSortTracker(ITracker):
                 "box": (int(l), int(t), int(r - l), int(b - t))
             })
         return results
+    

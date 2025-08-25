@@ -4,3 +4,4 @@ class ICalculator(ABC):
     @abstractmethod
     def calculate(self, *args, **kwargs):
         pass
+    

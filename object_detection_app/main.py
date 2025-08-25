@@ -14,14 +14,11 @@ video_source = LocalFileSource("temp/sample_video_002.mp4")
 # youtube_url = "https://www.youtube.com/shorts/nLXBinY7BwI" 
 # video_source = YouTubeSource(youtube_url)
 detector = ObjectDetector("runs/detect/train14/weights/best.pt")
-# detector = ObjectDetector("models/yolov8s.pt")
 
 video_processor = VideoProcessor(video_source, display=True)
 output_path = "static/output.mp4"
-# available_objects = ["pen", "Book", "scale", "plate"]
-# print("Objects available: ", available_objects)
+
 label1 = "blessing_card"
 label2 = "wallet"
 target_labels = (label1, label2)
 detections = video_processor.process_video(detector, target_labels)
-
