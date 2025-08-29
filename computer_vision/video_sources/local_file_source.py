@@ -1,7 +1,7 @@
-from video_sources.video_source_interface import VideoSourceInterface
+from computer_vision.video_sources.i_video_source import IVideoSource
 import os
 
-class LocalFileSource(VideoSourceInterface):
+class LocalFileSource(IVideoSource):
     def __init__(self, file_path):
         self.file_path = file_path
     

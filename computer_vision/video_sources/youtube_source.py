@@ -1,9 +1,9 @@
-from video_sources.video_source_interface import VideoSourceInterface
+from computer_vision.video_sources.i_video_source import IVideoSource
 import yt_dlp
 import os
 import tempfile
 import uuid
-class YouTubeSource(VideoSourceInterface):
+class YouTubeSource(IVideoSource):
     def __init__(self, yt_url):
         self.yt_url = yt_url
 

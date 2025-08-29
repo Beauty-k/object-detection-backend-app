@@ -30,6 +30,29 @@ class DistanceCalculator(ICalculator):
         return int(box.x_center), int(box.y_center)
     
     def calculate(self, box1, box2):
+        
+        """
+        Calculate the real-world distance (in millimeters) between the centers of two bounding boxes.
+
+        This method computes the Euclidean distance between the centers of `box1` and `box2` 
+        in pixel units, then converts it into millimeters using the previously initialized 
+        pixel-to-millimeter ratio. A correction factor is applied to improve accuracy.
+
+        Args:
+            box1 (BoundingBox): The first bounding box.
+            box2 (BoundingBox): The second bounding box.
+
+        Returns:
+            tuple:
+                - float: The corrected distance between the two objects in millimeters.
+                - tuple[int, int]: The (x, y) coordinates of the center of `box1`.
+                - tuple[int, int]: The (x, y) coordinates of the center of `box2`.
+
+        Raises:
+            ValueError: If the pixel-per-mm ratio has not been initialized by calling
+            `ensure_initialized()` with a reference object.
+        """
+
         logger.debug(f"Calculating distance between {box1} and {box2}")
         x1, y1 = self._get_center(box1)
         x2, y2 = self._get_center(box2)

@@ -1,5 +1,5 @@
 from deep_sort_realtime.deepsort_tracker import DeepSort
-from object_detection_app.tracker.i_tracker import ITracker
+from computer_vision.tracker.i_tracker import ITracker
 
 class DeepSortTracker(ITracker):
     def __init__(self):
