@@ -10,6 +10,14 @@ logger = setup_logger(__name__)
 CORRECTION_FACTOR = 1.079 
 
 class DistanceCalculator(ICalculator): 
+    """
+    A calculator for measuring real-world distances between detected objects.
+
+    This class uses a known reference object size (in millimeters) to compute
+    a pixel-to-millimeter ratio. Distances between objects are then calculated
+    in millimeters, with a correction factor applied for accuracy.
+    """
+        
     def __init__(self, reference_label:str, reference_mm: float = 300):
         self.reference_label = reference_label
         self.reference_mm = reference_mm
@@ -23,6 +31,16 @@ class DistanceCalculator(ICalculator):
         return False
     
     def ensure_initialized(self, detections):
+        """
+        Initialize the pixel-to-millimeter ratio using a reference object.
+
+        Args:
+            detections (list[dict]): A list of detection results containing labels and bounding boxes.
+
+        Side Effects:
+            Sets `self.pixel_per_mm` if a reference object is found.
+        """
+
         if self.pixel_per_mm is None:
             self._update_pixel_mm_ratio(detections)
 
@@ -67,6 +85,20 @@ class DistanceCalculator(ICalculator):
             raise ValueError("Pixel-per-mm ratio has not been initialized.")
     
     def annotate_distance(self, frame, box1: BoundingBox, box2: BoundingBox, label1: str, label2: str):
+        """
+        Annotate the distance between two bounding boxes on a video frame.
+
+        Args:
+            frame (ndarray): The image frame where the distance will be drawn.
+            box1 (BoundingBox): The first bounding box.
+            box2 (BoundingBox): The second bounding box.
+            label1 (str): The label for the first object.
+            label2 (str): The label for the second object.
+
+        Side Effects:
+            Draws a line between the two objects and overlays the distance (in mm) on the frame.
+        """
+        
         result = self.calculate(box1, box2)
         if result:
             distance_mm, p1, p2 = result

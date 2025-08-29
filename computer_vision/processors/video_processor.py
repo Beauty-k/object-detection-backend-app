@@ -9,6 +9,28 @@ from utils.logger import setup_logger
 logger = setup_logger(__name__)
 
 class VideoProcessor:
+    """
+    Orchestrates the full video analysis pipeline: reading frames, detecting objects,
+    tracking them, measuring distances, and managing video output.
+
+    This class integrates multiple components:
+    - `FrameReader` for reading frames
+    - `ObjectDetector` (passed at runtime) for object detection
+    - `DeepSort` for object tracking
+    - `DistanceCalculator` for measuring distances between objects
+    - `FrameWriter` and `FrameDisplayer` for output
+
+    Attributes:
+        cap (cv2.VideoCapture): OpenCV video capture instance.
+        width (int): Width of the video frames.
+        height (int): Height of the video frames.
+        fps (float): Frames per second of the video.
+        distance_calculator (DistanceCalculator): Utility for distance measurement.
+        tracker (DeepSort): Object tracker instance.
+        frame_reader (FrameReader): Frame reader wrapper around cv2.VideoCapture.
+        frame_writer (FrameWriter | None): Writes processed frames to file if configured.
+        frame_displayer (FrameDisplayer | None): Displays processed frames if enabled.
+    """
     def __init__(
         self,
         video_source,
@@ -49,7 +71,7 @@ class VideoProcessor:
         return self.frame_reader.read()
 
     def _detect_objects(self, detector, frame):
-        return detector.get_detection(frame)
+        return detector.detect_objects(frame)
 
     def _track_objects(self, frame, detections):
         tracking_inputs = []
@@ -102,7 +124,6 @@ class VideoProcessor:
         return True
 
     def process_video(self, detector, target_labels=()):
-
         """
         Process video frames to detect, track, and measure distances between objects.
         Parameters:-
@@ -165,3 +186,4 @@ class VideoProcessor:
             logger.info("Video processing complete.")
 
         return measured_distances_mm, all_detections
+    
