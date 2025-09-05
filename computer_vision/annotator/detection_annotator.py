@@ -11,7 +11,7 @@ BOX_COLOR = (0, 255, 255)
 TEXT_COLOR = (255, 255, 255)
 BG_COLOR = (0, 0, 0)
 
-class DetectionDrawer:
+class DetectionAnnotator:
     """
     Utility class for drawing object detection results on image frames.
     """
@@ -23,7 +23,7 @@ class DetectionDrawer:
             label: str = det.get("label", "")
             confidence: float = det.get("confidence", 0.0)
             track_id: Optional[int] = det.get("track_id", None)
-            DetectionDrawer._draw_coordinates(frame, bounding_box, label, confidence, track_id)
+            DetectionAnnotator._draw_coordinates(frame, bounding_box, label, confidence, track_id)
         return frame
 
     @staticmethod
@@ -45,7 +45,7 @@ class DetectionDrawer:
 
         coord_text: str = f"({x1},{y1})-({x2},{y2})"
 
-        DetectionDrawer._draw_text_block(frame, x1, y1, display_label, coord_text)
+        DetectionAnnotator._draw_text_block(frame, x1, y1, display_label, coord_text)
 
     @staticmethod
     def _draw_text_block(frame: np.ndarray, x: int, y: int, label_text: str, coord_text: str) -> None:

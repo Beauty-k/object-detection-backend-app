@@ -5,7 +5,9 @@ from calculators.distance_calculator import DistanceCalculator
 from processors.frame_reader import FrameReader
 from processors.frame_writer import FrameWriter
 from processors.frame_displayer import FrameDisplayer
-from drawer.detection_drawer import DetectionDrawer
+from annotator.detection_annotator import DetectionAnnotator
+from annotator.distance_annotator import DistanceAnnotator
+from annotator.tracked_object_annotator import TrackedObjectAnnotator
 from models.bounding_box import BoundingBox
 from utils.logger import setup_logger
 
@@ -73,7 +75,7 @@ class VideoProcessor:
         Returns the annotated frame and structured detection results.
         """
         detections = detector.detect_objects(frame)
-        frame = DetectionDrawer.draw_detections(frame, detections)
+        frame = DetectionAnnotator.draw_detections(frame, detections)
         return frame, detections
        
     def _track_objects(self, frame, detections):
@@ -101,24 +103,22 @@ class VideoProcessor:
 
             l, t, r, b = track.to_ltrb()
             track_id = track.track_id
-
             label = label_map.get(track_id, "unknown")
             setattr(track, "label", label)
 
             box = [l, t, r - l, b - t]
 
-            cv2.putText(frame, f"{label}-{track_id}", (int(l), int(t) - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-
             tracked_detections.append({
-                "id": track_id,
+                "track_id": track_id,
                 "label": label,
                 "box": box
             })
 
+        frame = TrackedObjectAnnotator.annotate_tracked_objects(frame, tracked_detections)
+
         return tracked_detections
 
-    def _annotate_distances(self, frame, detections, target_labels):
+    def _measure_distance(self, frame, detections, target_labels):
         """
         Measure and annotate distance between two target objects on the frame.
         Returns the computed distance in mm, or None if not possible.
@@ -143,7 +143,7 @@ class VideoProcessor:
 
         try:
             distance_mm, _, _ = self.distance_calculator.calculate(box1, box2)
-            self.distance_calculator.annotate_distance(frame, box1, box2, label1, label2)
+            DistanceAnnotator.annotate_distance(frame, box1, box2, label1, label2, self.distance_calculator)
             return distance_mm
         except ValueError as e:
             logger.warning(f"Distance calculation failed: {e}")
@@ -202,7 +202,7 @@ class VideoProcessor:
                 try:
                     annotated_frame, detections = self._detect_objects(detector, frame)
                     _ = self._track_objects(annotated_frame, detections)
-                    distance_mm = self._annotate_distances(annotated_frame, detections, target_labels)
+                    distance_mm = self._measure_distance(annotated_frame, detections, target_labels)
                     measured_distances_mm.append(distance_mm)
 
                     if not self._output_frame(annotated_frame):

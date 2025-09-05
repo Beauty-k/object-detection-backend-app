@@ -3,7 +3,6 @@ import numpy as np
 from typing import List, Dict, Any
 from .base_detector import BaseDetector
 from .i_object_detector import IObjectDetector
-from drawer.detection_drawer import DetectionDrawer
 from utils.exceptions import DetectionError
 from utils.logger import setup_logger
 from models.bounding_box import BoundingBox
