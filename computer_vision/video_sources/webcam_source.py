@@ -1,4 +1,4 @@
-from computer_vision.video_sources.i_video_source import IVideoSource
+from video_sources.i_video_source import IVideoSource
 
 class WebcamSource(IVideoSource):
     """

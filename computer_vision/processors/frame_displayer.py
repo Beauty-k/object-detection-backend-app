@@ -19,4 +19,4 @@ class FrameDisplayer:
 
     def close(self):
         """Destroy the window when done."""
-        cv2.destroyWindow(self.window_name)
+        cv2.destroyAllWindows()

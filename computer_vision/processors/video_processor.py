@@ -1,9 +1,12 @@
 import cv2
+import numpy as np
 from deep_sort_realtime.deepsort_tracker import DeepSort
 from calculators.distance_calculator import DistanceCalculator
 from processors.frame_reader import FrameReader
 from processors.frame_writer import FrameWriter
 from processors.frame_displayer import FrameDisplayer
+from drawer.detection_drawer import DetectionDrawer
+from models.bounding_box import BoundingBox
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -19,18 +22,8 @@ class VideoProcessor:
     - `DeepSort` for object tracking
     - `DistanceCalculator` for measuring distances between objects
     - `FrameWriter` and `FrameDisplayer` for output
-
-    Attributes:
-        cap (cv2.VideoCapture): OpenCV video capture instance.
-        width (int): Width of the video frames.
-        height (int): Height of the video frames.
-        fps (float): Frames per second of the video.
-        distance_calculator (DistanceCalculator): Utility for distance measurement.
-        tracker (DeepSort): Object tracker instance.
-        frame_reader (FrameReader): Frame reader wrapper around cv2.VideoCapture.
-        frame_writer (FrameWriter | None): Writes processed frames to file if configured.
-        frame_displayer (FrameDisplayer | None): Displays processed frames if enabled.
     """
+    
     def __init__(
         self,
         video_source,
@@ -51,12 +44,16 @@ class VideoProcessor:
         self.frame_displayer = FrameDisplayer() if display else None
 
     def _init_video_capture(self, video_source):
+        """Initialize a cv2.VideoCapture from the given source object."""
+
         cap = cv2.VideoCapture(video_source.get_video_source())
         if not cap.isOpened():
             raise FileNotFoundError(f"Cannot open video source: {video_source}")
         return cap
 
     def _get_video_properties(self):
+        """Retrieve width, height, and fps from the video capture object."""
+
         width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = self.cap.get(cv2.CAP_PROP_FPS) or 30
@@ -70,49 +67,92 @@ class VideoProcessor:
     def _get_next_frame(self):
         return self.frame_reader.read()
 
-    def _detect_objects(self, detector, frame):
-        return detector.detect_objects(frame)
-
+    def _detect_objects(self, detector, frame)-> tuple[np.ndarray, list[dict]]:
+        """
+        Run object detection on a frame using the provided detector.
+        Returns the annotated frame and structured detection results.
+        """
+        detections = detector.detect_objects(frame)
+        frame = DetectionDrawer.draw_detections(frame, detections)
+        return frame, detections
+       
     def _track_objects(self, frame, detections):
+        """
+        Apply DeepSORT tracking on current detections.
+        Returns a list of tracked detections with IDs, labels, and boxes.
+        """
         tracking_inputs = []
         for d in detections:
-            box = d["box"]
-            x = box.x_center - box.width / 2
-            y = box.y_center - box.height / 2
-            w = box.width
-            h = box.height
-            tracking_inputs.append(([x, y, w, h], d["confidence"], d["label"]))
+            box: BoundingBox = d["box"]
+            x, y, w, h = box.to_xywh()
+            class_id = int(d.get("class_id", 0))
+            tracking_inputs.append(([x, y, w, h], d["confidence"], class_id, d["label"]))
 
         tracks = self.tracker.update_tracks(tracking_inputs, frame=frame)
+
+        track_ids = [t.track_id for t in tracks]
+        label_map = {tid: label for (_, _, _, label), tid in zip(tracking_inputs, track_ids)}
+
         tracked_detections = []
+
         for track in tracks:
             if not track.is_confirmed():
                 continue
+
             l, t, r, b = track.to_ltrb()
-            label, track_id = track.det_class, track.track_id
+            track_id = track.track_id
+
+            label = label_map.get(track_id, "unknown")
+            setattr(track, "label", label)
+
             box = [l, t, r - l, b - t]
 
             cv2.putText(frame, f"{label}-{track_id}", (int(l), int(t) - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-            tracked_detections.append({"id": track_id, "label": label, "box": box})
+
+            tracked_detections.append({
+                "id": track_id,
+                "label": label,
+                "box": box
+            })
 
         return tracked_detections
 
     def _annotate_distances(self, frame, detections, target_labels):
+        """
+        Measure and annotate distance between two target objects on the frame.
+        Returns the computed distance in mm, or None if not possible.
+        """
+
         self.distance_calculator.ensure_initialized(detections)
-        target_boxes = [d for d in detections if d["label"] in target_labels]
-        if len(target_boxes) == 2:
-            box1, label1 = target_boxes[0]["box"], target_boxes[0]["label"]
-            box2, label2 = target_boxes[1]["box"], target_boxes[1]["label"]
-            try:
-                distance_mm, _, _ = self.distance_calculator.calculate(box1, box2)
-                self.distance_calculator.annotate_distance(frame, box1, box2, label1, label2)
-                return distance_mm
-            except ValueError as e:
-                logger.warning(f"Distance calculation failed: {e}")
-        return None
+        
+        if not target_labels:
+            if len(detections) >= 2:
+                box1, label1 = detections[0]["box"], detections[0]["label"]
+                box2, label2 = detections[1]["box"], detections[1]["label"]
+            else:
+                return None
+        else:
+   
+            target_boxes = [d for d in detections if d["label"] in target_labels]
+            if len(target_boxes) == 2:
+                box1, label1 = target_boxes[0]["box"], target_boxes[0]["label"]
+                box2, label2 = target_boxes[1]["box"], target_boxes[1]["label"]
+            else:
+                return None
+
+        try:
+            distance_mm, _, _ = self.distance_calculator.calculate(box1, box2)
+            self.distance_calculator.annotate_distance(frame, box1, box2, label1, label2)
+            return distance_mm
+        except ValueError as e:
+            logger.warning(f"Distance calculation failed: {e}")
+            return None
+
 
     def _output_frame(self, frame):
+        """Write or display the frame depending on configuration. Returns False if stopped."""
+
         if self.frame_writer:
             self.frame_writer.write(frame)
         if self.frame_displayer:
