@@ -1,0 +1,27 @@
+__pycache__/
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+*.log
+*.mp4
+*.mov
+*.avi
+*.jpg
+*.png
+*.jpeg
+*.jpg
+*.pt
+*.txt
+temp/
+*.pyc
+.env
+*.csv
+# **/runs/**/args.yaml
+static/output.mp4
+data/
+dataset/
+object_detection_app/custom_dataset/**
+requirements.txt
+.vscode/
+.idea/
