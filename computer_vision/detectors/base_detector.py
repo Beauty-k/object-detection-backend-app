@@ -1,8 +1,7 @@
 import torch
-import cv2
-from typing import Dict, Any, Tuple
-from utils.logger import setup_logger
-from models.bounding_box import BoundingBox
+from typing import Dict, Any
+from computer_vision.utils.logger import setup_logger
+from computer_vision.models.bounding_box import BoundingBox
 
 logger = setup_logger(__name__)
 

@@ -1,10 +1,10 @@
 import numpy as np
 from typing import List, Dict, Any
-from .base_detector import BaseDetector
-from .i_object_detector import IObjectDetector
-from utils.logger import setup_logger
-from models.bounding_box import BoundingBox
-from utils.exceptions import DetectionError
+from computer_vision.detectors.base_detector import BaseDetector
+from computer_vision.detectors.i_object_detector import IObjectDetector
+from computer_vision.utils.logger import setup_logger
+from computer_vision.models.bounding_box import BoundingBox
+from computer_vision.utils.exceptions import DetectionError
 
 import torchvision
 import torch
@@ -29,7 +29,7 @@ class RCNNDetector(BaseDetector, IObjectDetector):
             ("cpu" or "cuda").
     """
 
-    def __init__(self, device: str = "cpu"):
+    def __init__(self, device: str = "cuda"):
         super().__init__(device)
         try:
             self.model = torchvision.models.detection.fasterrcnn_resnet50_fpn(
@@ -81,12 +81,14 @@ class RCNNDetector(BaseDetector, IObjectDetector):
 
                 # Convert xyxy -> BoundingBox
                 x1, y1, x2, y2 = box.tolist()
-                bbox = BoundingBox.from_xyxy(x1, y1, x2, y2)
+                bounding_box = BoundingBox(x1, y1, x2, y2)
+                bounding_box.to_xywh()
 
                 detections.append(
                     self._build_detection_dict(
-                        bbox.x_center, bbox.y_center, bbox.width, bbox.height,
-                        str(label.item()), float(score)
+                        bounding_box,
+                        str(label.item()),
+                        float(score)
                     )
                 )
 

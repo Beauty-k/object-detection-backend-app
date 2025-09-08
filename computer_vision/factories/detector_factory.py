@@ -1,8 +1,8 @@
 from typing import Type
-from detectors.yolov8_detector import YOLOv8Detector
-from detectors.rcnn_detector import RCNNDetector
-from detectors.ssd_detector import SSDDetector
-from utils.exceptions import DetectionError
+from computer_vision.detectors.yolov8_detector import YOLOv8Detector
+from computer_vision.detectors.rcnn_detector import RCNNDetector
+from computer_vision.detectors.ssd_detector import SSDDetector
+from computer_vision.utils.exceptions import DetectionError
 
 class DetectorFactory:
     """

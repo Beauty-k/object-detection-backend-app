@@ -2,7 +2,7 @@
 from typing import List, Any, Dict, Optional
 import numpy as np
 import cv2
-from models.bounding_box import BoundingBox
+from computer_vision.models.bounding_box import BoundingBox
 
 FONT_SCALE_LABEL = 0.6
 FONT_SCALE_COORD = 0.5

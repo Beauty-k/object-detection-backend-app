@@ -1,9 +1,9 @@
 import math
 import cv2
 from typing import Tuple
-from models.bounding_box import BoundingBox
-from calculators.i_calculator import ICalculator
-from utils.logger import setup_logger
+from computer_vision.models.bounding_box import BoundingBox
+from computer_vision.calculators.i_calculator import ICalculator
+from computer_vision.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 

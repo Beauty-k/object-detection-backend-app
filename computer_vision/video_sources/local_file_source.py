@@ -1,4 +1,4 @@
-from video_sources.i_video_source import IVideoSource
+from computer_vision.video_sources.i_video_source import IVideoSource
 import os
 
 class LocalFileSource(IVideoSource):

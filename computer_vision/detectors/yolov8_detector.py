@@ -1,12 +1,12 @@
 from ultralytics import YOLO
 import numpy as np
 from typing import List, Dict, Any
-from .base_detector import BaseDetector
-from .i_object_detector import IObjectDetector
-from utils.exceptions import DetectionError
-from utils.logger import setup_logger
-from models.bounding_box import BoundingBox
-from utils.exceptions import DetectionError
+from computer_vision.detectors.base_detector import BaseDetector
+from computer_vision.detectors.i_object_detector import IObjectDetector
+from computer_vision.utils.exceptions import DetectionError
+from computer_vision.utils.logger import setup_logger
+from computer_vision.models.bounding_box import BoundingBox
+from computer_vision.utils.exceptions import DetectionError
 
 logger = setup_logger(__name__)
 
@@ -71,3 +71,4 @@ class YOLOv8Detector(BaseDetector, IObjectDetector):
         except Exception as e:
             logger.error(f"Detection failed: {str(e)}")
             raise DetectionError("YOLOv8 detection failed") from e
+        

@@ -1,9 +1,9 @@
-from video_sources.i_video_source import IVideoSource
+from computer_vision.video_sources.i_video_source import IVideoSource
 import yt_dlp
 import os
 import tempfile
 import uuid
-from utils.logger import setup_logger
+from computer_vision.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 

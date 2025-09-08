@@ -1,15 +1,15 @@
 import cv2
 import numpy as np
 from deep_sort_realtime.deepsort_tracker import DeepSort
-from calculators.distance_calculator import DistanceCalculator
-from processors.frame_reader import FrameReader
-from processors.frame_writer import FrameWriter
-from processors.frame_displayer import FrameDisplayer
-from annotator.detection_annotator import DetectionAnnotator
-from annotator.distance_annotator import DistanceAnnotator
-from annotator.tracked_object_annotator import TrackedObjectAnnotator
-from models.bounding_box import BoundingBox
-from utils.logger import setup_logger
+from computer_vision.calculators.distance_calculator import DistanceCalculator
+from computer_vision.processors.frame_reader import FrameReader
+from computer_vision.processors.frame_writer import FrameWriter
+from computer_vision.processors.frame_displayer import FrameDisplayer
+from computer_vision.annotator.detection_annotator import DetectionAnnotator
+from computer_vision.annotator.distance_annotator import DistanceAnnotator
+from computer_vision.annotator.tracked_object_annotator import TrackedObjectAnnotator
+from computer_vision.models.bounding_box import BoundingBox
+from computer_vision.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
@@ -85,8 +85,8 @@ class VideoProcessor:
         """
         tracking_inputs = []
         for d in detections:
-            box: BoundingBox = d["box"]
-            x, y, w, h = box.to_xywh()
+            bounding_box: BoundingBox = d["box"]
+            x, y, w, h = bounding_box.to_xywh()
             class_id = int(d.get("class_id", 0))
             tracking_inputs.append(([x, y, w, h], d["confidence"], class_id, d["label"]))
 

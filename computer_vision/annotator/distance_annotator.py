@@ -1,5 +1,5 @@
 import cv2
-from models.bounding_box import BoundingBox
+from computer_vision.models.bounding_box import BoundingBox
 
 class DistanceAnnotator:
       
